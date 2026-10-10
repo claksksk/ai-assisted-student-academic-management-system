@@ -1,1 +1,1 @@
-# ai-assisted-student-academic-management-system
+A modern, full-screen glassmorphism web application built for educational institutions featuring secure session-based authentication, user profile customization with picture upload/download, live particle animations, interactive student records CRUD operations, and an intelligent AI Academic Assistant module.
