@@ -63,16 +63,6 @@
             cursor: pointer;
         }
 
-        .navbar-brand:active, .navbar-brand.pulse-anim {
-            animation: textPulse 0.4s ease;
-        }
-
-        @keyframes textPulse {
-            0% { transform: scale(1); text-shadow: 0 0 0 rgba(59, 130, 246, 0); }
-            50% { transform: scale(1.08); text-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
-            100% { transform: scale(1); text-shadow: 0 0 0 rgba(59, 130, 246, 0); }
-        }
-
         .table-dark {
             background-color: transparent !important;
             color: #ffffff;
@@ -188,11 +178,10 @@
     <!-- Animated Live Background Canvas -->
     <canvas id="bg-canvas"></canvas>
 
-    <!-- AUTHENTICATION CONTAINER (Login & Register) -->
+    <!-- AUTHENTICATION CONTAINER -->
     <div id="authSection" class="container d-flex justify-content-center align-items-center min-vh-100" style="position: relative; z-index: 10;">
         <div class="col-md-5">
             <div class="card p-4 p-md-5">
-                
                 <!-- LOGIN FORM -->
                 <div id="loginFormContainer">
                     <div class="text-center mb-4">
@@ -263,17 +252,15 @@
                         <p class="text-center text-light small mb-0">Already have an account? <span class="auth-switch" onclick="switchAuthForm('login')">Login here</span></p>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD (Nakatago habang nasa login/register) -->
+    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" style="display: none !important; position: relative; z-index: 10;">
-        <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark px-4 fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-white" onclick="triggerHeaderAnim(this)"><i class="fa-solid fa-brain me-2 text-primary"></i>AI-Academic Manager</a>
+                <a class="navbar-brand fw-bold text-white"><i class="fa-solid fa-brain me-2 text-primary"></i>AI-Academic Manager & Analytics</a>
                 <div class="d-flex align-items-center gap-3">
                     <div class="d-flex align-items-center gap-2" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#profileModal" title="View Profile">
                         <div id="navAvatarContainer">
@@ -286,21 +273,18 @@
             </div>
         </nav>
 
-        <!-- Main Container -->
         <div class="container py-5 mt-5">
-            
-            <!-- System Stats Row -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <div class="card p-3 text-center">
                         <h6 class="text-light">Total Enrolled Students</h6>
-                        <h2 id="totalStudents" class="fw-bold text-primary mt-2">3</h2>
+                        <h2 id="totalStudents" class="fw-bold text-primary mt-2">5</h2>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card p-3 text-center">
-                        <h6 class="text-light">Database Connection</h6>
-                        <h5 class="fw-bold text-success mt-2"><i class="fa-solid fa-database me-2"></i>MySQL Connected</h5>
+                        <h6 class="text-light">Database & Analytics Engine</h6>
+                        <h5 class="fw-bold text-success mt-2"><i class="fa-solid fa-database me-2"></i>MySQL & Excel Ready</h5>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -312,82 +296,61 @@
             </div>
 
             <div class="row g-4">
-                <!-- Left Column: Student CRUD Table & Form -->
+                <!-- Left Column: Student CRUD Table & Project 2 Sorting + Export -->
                 <div class="col-lg-8">
                     <div class="card p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                            <h4 class="fw-bold mb-0 text-white" onclick="triggerHeaderAnim(this)" style="cursor: pointer;">Student Records (CRUD)</h4>
-                            <div class="d-flex gap-2">
-                                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Live Search student..." onkeyup="filterStudents()">
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#studentModal" onclick="prepareAddMode()"><i class="fa-solid fa-user-plus me-1"></i>Add Student</button>
+                            <h4 class="fw-bold mb-0 text-white">Student Records & Analytics (CRUD)</h4>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <!-- Sort by Course Filter -->
+                                <select id="courseFilter" class="form-select form-select-sm" style="width: 140px;" onchange="filterStudents()">
+                                    <option value="ALL">All Courses</option>
+                                    <option value="IT">BSIT Only</option>
+                                    <option value="CS">BSCS Only</option>
+                                </select>
+                                <input type="text" id="searchInput" class="form-control form-control-sm" style="width: 150px;" placeholder="Search student..." onkeyup="filterStudents()">
+                                <button class="btn btn-success btn-sm" onclick="exportToExcel()"><i class="fa-solid fa-file-excel me-1"></i>Export to Excel</button>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#studentModal" onclick="prepareAddMode()"><i class="fa-solid fa-user-plus me-1"></i>Add</button>
                             </div>
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-dark table-hover align-middle mb-0">
+                            <table class="table table-dark table-hover align-middle mb-0" id="studentTable">
                                 <thead>
                                     <tr>
                                         <th>ID No.</th>
                                         <th>Full Name</th>
                                         <th>Course / Year</th>
                                         <th>GPA</th>
+                                        <th>Attendance</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="studentTableBody">
-                                    <tr>
-                                        <td>2026-001</td>
-                                        <td>Clarize C. Villanueva</td>
-                                        <td>BSIT - 4th Year</td>
-                                        <td>1.25</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-info me-1" onclick="editStudent('2026-001', 'Clarize C. Villanueva', 'BSIT - 4th Year', '1.25')"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(this)"><i class="fa-solid fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2026-002</td>
-                                        <td>Juan Dela Cruz</td>
-                                        <td>BSIT - 3rd Year</td>
-                                        <td>1.75</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-info me-1" onclick="editStudent('2026-002', 'Juan Dela Cruz', 'BSIT - 3rd Year', '1.75')"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(this)"><i class="fa-solid fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2026-003</td>
-                                        <td>Maria Santos</td>
-                                        <td>BSCS - 2nd Year</td>
-                                        <td>1.50</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-info me-1" onclick="editStudent('2026-003', 'Maria Santos', 'BSCS - 2nd Year', '1.50')"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(this)"><i class="fa-solid fa-trash"></i></button>
-                                        </td>
-                                    </tr>
+                                    <!-- Dynamic rows loaded via JS -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column: AI Academic Assistant Module with Clickable FAQs -->
+                <!-- Right Column: AI Academic Assistant Module -->
                 <div class="col-lg-4">
                     <div class="card p-4">
-                        <h4 class="fw-bold mb-2 text-white" onclick="triggerHeaderAnim(this)" style="cursor: pointer;"><i class="fa-solid fa-robot text-primary me-2"></i>AI Academic Assistant</h4>
-                        <p class="text-light small mb-2">Ask AI about student records, top performers, or study tips.</p>
+                        <h4 class="fw-bold mb-2 text-white"><i class="fa-solid fa-robot text-primary me-2"></i>AI Assistant</h4>
+                        <p class="text-light small mb-2">Ask AI about student analytics, risk flags, or study tips.</p>
                         
                         <div id="aiChatBox" class="ai-chat-box mb-2">
                             <div class="ai-message">
-                                <strong>AI System:</strong> Hello! I am your Academic Assistant. Click any frequent question below or type your query.
+                                <strong>AI System:</strong> Hello! Click any frequent question below or type your query.
                             </div>
                         </div>
 
-                        <!-- Clickable Frequently Asked Questions (English) -->
                         <div class="mb-2 d-flex flex-wrap gap-1">
-                            <span class="faq-chip" onclick="askFAQ('Who is the top student?')">Who is the top student?</span>
-                            <span class="faq-chip" onclick="askFAQ('How many students are enrolled?')">Total students?</span>
-                            <span class="faq-chip" onclick="askFAQ('Show GPA statistics')">GPA statistics</span>
+                            <span class="faq-chip" onclick="askFAQ('Who is the top student?')">Top student?</span>
+                            <span class="faq-chip" onclick="askFAQ('How many at-risk students?')">At-risk count?</span>
+                            <span class="faq-chip" onclick="askFAQ('Show GPA statistics')">GPA stats</span>
                             <span class="faq-chip" onclick="askFAQ('Give me study tips')">Study tips</span>
                         </div>
 
@@ -398,7 +361,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -450,7 +412,7 @@
                         <input type="hidden" id="editRowIndex" value="">
                         <div class="mb-3">
                             <label class="form-label small">Student ID</label>
-                            <input type="text" id="modalStudentId" class="form-control" placeholder="e.g. 2026-004" required>
+                            <input type="text" id="modalStudentId" class="form-control" placeholder="e.g. 2026-006" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Full Name</label>
@@ -463,6 +425,10 @@
                         <div class="mb-3">
                             <label class="form-label small">GPA</label>
                             <input type="number" step="0.01" min="1.00" max="5.00" id="modalStudentGpa" class="form-control" placeholder="e.g. 1.25" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Attendance Rate (%)</label>
+                            <input type="number" min="0" max="100" id="modalStudentAttendance" class="form-control" placeholder="e.g. 95" required>
                         </div>
                     </form>
                 </div>
@@ -480,11 +446,49 @@
         let currentUserData = null;
         let userProfilePicData = null;
 
-        function triggerHeaderAnim(element) {
-            element.classList.remove('pulse-anim');
-            void element.offsetWidth; 
-            element.classList.add('pulse-anim');
+        // Initial Sample Student Data with Attendance and Status
+        let studentsData = [
+            { id: "2026-001", name: "Clarize C. Villanueva", course: "BSIT - 4th Year", gpa: 1.25, attendance: 98 },
+            { id: "2026-002", name: "Juan Dela Cruz", course: "BSIT - 3rd Year", gpa: 1.75, attendance: 85 },
+            { id: "2026-003", name: "Maria Santos", course: "BSCS - 2nd Year", gpa: 1.50, attendance: 92 },
+            { id: "2026-004", name: "Mark Anthony Reyes", course: "BSIT - 4th Year", gpa: 2.75, attendance: 74 },
+            { id: "2026-005", name: "Angelica Mae Cruz", course: "BSIS - 1st Year", gpa: 3.00, attendance: 70 }
+        ];
+
+        function renderTable(dataToRender = studentsData) {
+            let tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = "";
+            
+            dataToRender.forEach((stu, index) => {
+                let statusBadge = "";
+                if(stu.gpa <= 1.50 && stu.attendance >= 90) {
+                    statusBadge = '<span class="badge bg-success">Dean Lister</span>';
+                } else if(stu.gpa > 2.50 || stu.attendance < 75) {
+                    statusBadge = '<span class="badge bg-danger">At Risk</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-primary">Regular / Stable</span>';
+                }
+
+                let row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${stu.id}</td>
+                    <td>${stu.name}</td>
+                    <td>${stu.course}</td>
+                    <td>${stu.gpa.toFixed(2)}</td>
+                    <td>${stu.attendance}%</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info me-1" onclick="editStudent('${stu.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent('${stu.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+            });
+            document.getElementById('totalStudents').innerText = studentsData.length;
         }
+
+        window.onload = function() {
+            renderTable();
+        };
 
         function togglePassword(inputId, iconId) {
             let input = document.getElementById(inputId);
@@ -581,21 +585,11 @@
                 return;
             }
 
-            if(pass.length < 6) {
-                showError('registerError', "Password must be at least 6 characters long.");
-                return;
-            }
-
             registeredUsers.push({ name, email, user, pass });
             localStorage.setItem('academic_users', JSON.stringify(registeredUsers));
 
             alert("Account successfully registered! Please log in.");
-            
-            document.getElementById('registerFormContainer').style.display = 'none';
-            document.getElementById('loginFormContainer').style.display = 'block';
-            document.getElementById('loginEmail').value = email;
-            document.getElementById('loginPassword').value = "";
-            document.getElementById('studentForm').reset();
+            switchAuthForm('login');
         }
 
         function showError(elementId, message) {
@@ -651,13 +645,43 @@
             }
         }
 
+        // Filter and Sort by IT / CS and Live Search
         function filterStudents() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let rows = document.getElementById('studentTableBody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                let text = rows[i].innerText.toLowerCase();
-                rows[i].style.display = text.includes(input) ? '' : 'none';
-            }
+            let searchInput = document.getElementById('searchInput').value.toLowerCase();
+            let courseFilter = document.getElementById('courseFilter').value;
+
+            let filtered = studentsData.filter(stu => {
+                let matchesSearch = stu.name.toLowerCase().includes(searchInput) || stu.id.toLowerCase().includes(searchInput);
+                let matchesCourse = true;
+                if(courseFilter === "IT") {
+                    matchesCourse = stu.course.toUpperCase().includes("IT");
+                } else if(courseFilter === "CS") {
+                    matchesCourse = stu.course.toUpperCase().includes("CS");
+                }
+                return matchesSearch && matchesCourse;
+            });
+
+            renderTable(filtered);
+        }
+
+        // EXPORT TO EXCEL FEATURE (Project 2 Requirement)
+        function exportToExcel() {
+            let csv = 'Student ID,Full Name,Course/Year,GPA,Attendance Rate,Status\n';
+            studentsData.forEach(stu => {
+                let status = "Regular / Stable";
+                if(stu.gpa <= 1.50 && stu.attendance >= 90) status = "Dean Lister";
+                else if(stu.gpa > 2.50 || stu.attendance < 75) status = "At Risk";
+                csv += `"${stu.id}","${stu.name}","${stu.course}",${stu.gpa},"${stu.attendance}%","${status}"\n`;
+            });
+
+            let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'student_performance_analytics.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function prepareAddMode() {
@@ -672,74 +696,46 @@
             let name = document.getElementById('modalStudentName').value.trim();
             let course = document.getElementById('modalStudentCourse').value.trim();
             let gpa = parseFloat(document.getElementById('modalStudentGpa').value);
-            let editIndex = document.getElementById('editRowIndex').value;
+            let attendance = parseInt(document.getElementById('modalStudentAttendance').value);
 
-            if(!id || !name || !course || isNaN(gpa)) {
+            if(!id || !name || !course || isNaN(gpa) || isNaN(attendance)) {
                 showError('modalError', "Please complete all fields with valid data.");
                 return;
             }
 
-            if(gpa < 1.00 || gpa > 5.00) {
-                showError('modalError', "GPA must be between 1.00 and 5.00.");
-                return;
-            }
-
-            let tbody = document.getElementById('studentTableBody');
-
-            if(editIndex === "") {
-                let newRow = tbody.insertRow();
-                newRow.innerHTML = `
-                    <td>${id}</td>
-                    <td>${name}</td>
-                    <td>${course}</td>
-                    <td>${gpa.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-info me-1" onclick="editStudent('${id}', '${name}', '${course}', '${gpa}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(this)"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
+            let existingIndex = studentsData.findIndex(s => s.id === id);
+            if(existingIndex >= 0) {
+                studentsData[existingIndex] = { id, name, course, gpa, attendance };
             } else {
-                let rows = tbody.getElementsByTagName('tr');
-                let row = rows[parseInt(editIndex)];
-                row.cells[0].innerText = id;
-                row.cells[1].innerText = name;
-                row.cells[2].innerText = course;
-                row.cells[3].innerText = gpa.toFixed(2);
+                studentsData.push({ id, name, course, gpa, attendance });
             }
 
-            document.getElementById('totalStudents').innerText = tbody.rows.length;
-
+            renderTable();
             let modalElement = document.getElementById('studentModal');
             let modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
         }
 
-        function editStudent(id, name, course, gpa) {
-            document.getElementById('modalTitle').innerText = "Edit Student Record";
-            document.getElementById('modalStudentId').value = id;
-            document.getElementById('modalStudentName').value = name;
-            document.getElementById('modalStudentCourse').value = course;
-            document.getElementById('modalStudentGpa').value = gpa;
-            document.getElementById('modalError').style.display = 'none';
-            
-            let tbody = document.getElementById('studentTableBody');
-            let rows = tbody.getElementsByTagName('tr');
-            for(let i=0; i<rows.length; i++) {
-                if(rows[i].cells[0].innerText === id) {
-                    document.getElementById('editRowIndex').value = i;
-                    break;
-                }
-            }
+        function editStudent(id) {
+            let stu = studentsData.find(s => s.id === id);
+            if(stu) {
+                document.getElementById('modalTitle').innerText = "Edit Student Record";
+                document.getElementById('modalStudentId').value = stu.id;
+                document.getElementById('modalStudentName').value = stu.name;
+                document.getElementById('modalStudentCourse').value = stu.course;
+                document.getElementById('modalStudentGpa').value = stu.gpa;
+                document.getElementById('modalStudentAttendance').value = stu.attendance;
+                document.getElementById('modalError').style.display = 'none';
 
-            let modal = new bootstrap.Modal(document.getElementById('studentModal'));
-            modal.show();
+                let modal = new bootstrap.Modal(document.getElementById('studentModal'));
+                modal.show();
+            }
         }
 
-        function deleteStudent(btn) {
+        function deleteStudent(id) {
             if(confirm("Are you sure you want to delete this student record?")) {
-                let row = btn.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-                document.getElementById('totalStudents').innerText = document.getElementById('studentTableBody').rows.length;
+                studentsData = studentsData.filter(s => s.id !== id);
+                renderTable();
             }
         }
 
@@ -760,19 +756,15 @@
             let lowerQuery = query.toLowerCase();
             let aiResponse = "I am analyzing your database records. Please ask about students, GPAs, total count, or study tips.";
 
-            let rows = document.getElementById('studentTableBody').getElementsByTagName('tr');
-            let studentCount = rows.length;
-
             if(lowerQuery.includes('top student') || lowerQuery.includes('highest gpa')) {
                 aiResponse = "Based on current database records, Clarize C. Villanueva holds the highest academic standing with a GPA of 1.25.";
-            } else if(lowerQuery.includes('how many students')) {
-                aiResponse = `There are currently ${studentCount} students actively enrolled and managed in the system database.`;
+            } else if(lowerQuery.includes('at-risk') || lowerQuery.includes('risk')) {
+                let riskCount = studentsData.filter(s => s.gpa > 2.50 || s.attendance < 75).length;
+                aiResponse = `There are currently ${riskCount} students flagged as 'At Risk' based on attendance and GPA thresholds.`;
             } else if(lowerQuery.includes('gpa statistics')) {
-                aiResponse = "The student GPAs range from 1.25 to 1.75, showing excellent overall academic performance across BSIT and BSCS programs.";
+                aiResponse = "The student GPAs range from 1.25 to 3.00, demonstrating active analytics tracking across IT and CS programs.";
             } else if(lowerQuery.includes('study tips')) {
-                aiResponse = "AI Study Recommendation: Organize peer tutoring for database management systems and web architecture to help students maintain superior GPAs.";
-            } else if(lowerQuery.includes('hello') || lowerQuery.includes('hi')) {
-                aiResponse = "Hello! I'm your AI Academic Assistant. Feel free to click any FAQ chip above or type your question!";
+                aiResponse = "AI Study Recommendation: Focus on targeted intervention and peer tutoring for students flagged under risk status.";
             }
 
             setTimeout(() => {
@@ -784,7 +776,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Live Interactive Canvas Background (Floating Particles)
+        // Live Interactive Canvas Background
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
 
